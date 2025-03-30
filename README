@@ -1,0 +1,124 @@
+# StacksTickets - Event Management & Ticketing Smart Contract
+
+## Overview
+This smart contract enables event organizers to create and manage events, sell tickets, transfer ticket ownership, and process refunds. The contract ensures secure and transparent ticket transactions using STX (Stacks tokens). It also maintains records of events and tickets issued on the blockchain.
+
+## Features
+- **Event Creation**: Organizers can create events by specifying the number of tickets and ticket price.
+- **Ticket Purchase**: Users can buy tickets for events with STX, and the funds are transferred to the event organizer.
+- **Ticket Transfer**: Users can transfer ticket ownership to another user.
+- **Ticket Refund**: Event organizers can refund tickets and return STX to the ticket holder.
+- **Event & Ticket Tracking**: Keeps a record of all created events and issued tickets.
+
+## Smart Contract Structure
+
+### Data Structures
+#### Events
+The contract stores event details in a `define-map` named `events`, indexed by `event-id`. Each event has:
+- `organizer`: The principal (user) who created the event.
+- `total-tickets`: The total number of tickets available.
+- `price`: The ticket price in STX.
+- `tickets-remaining`: The number of unsold tickets.
+
+#### Tickets
+A `define-map` named `tickets` holds ticket information, indexed by `ticket-id`. Each ticket has:
+- `event-id`: The ID of the event the ticket belongs to.
+- `owner`: The principal who owns the ticket.
+
+#### Counters
+- `event-counter`: Tracks the total number of events created.
+- `ticket-counter`: Tracks the total number of tickets issued.
+
+## Functions
+### 1. Event Creation
+**Function:** `create-event (total-tickets uint) (price uint)`
+
+**Description:**
+Allows an organizer to create an event with a specified number of tickets and a ticket price. The event is stored in the `events` map, and the `event-counter` is incremented.
+
+**Validations:**
+- `total-tickets` must be greater than zero.
+- `price` must be greater than zero.
+
+**Returns:** The newly created `event-id`.
+
+---
+### 2. Ticket Purchase
+**Function:** `buy-ticket (event-id uint)`
+
+**Description:**
+Allows users to purchase tickets for an event. The STX payment is transferred to the event organizer, and a new ticket is assigned to the buyer.
+
+**Validations:**
+- Event must exist.
+- Tickets must be available.
+- Buyer must have enough STX to pay for the ticket.
+
+**Returns:** The newly assigned `ticket-id`.
+
+---
+### 3. Ticket Transfer
+**Function:** `transfer-ticket (ticket-id uint) (new-owner principal)`
+
+**Description:**
+Allows a ticket owner to transfer their ticket to another user.
+
+**Validations:**
+- Ticket must exist.
+- The sender must be the current owner of the ticket.
+
+**Returns:** `true` if successful.
+
+---
+### 4. Ticket Refund
+**Function:** `refund-ticket (ticket-id uint)`
+
+**Description:**
+Allows an event organizer to refund a ticket, returning STX to the ticket owner. The ticket is removed from the system, and the number of available tickets for the event increases.
+
+**Validations:**
+- Ticket must exist.
+- Only the event organizer can issue a refund.
+
+**Returns:** `true` if successful.
+
+## Error Codes
+| Code  | Meaning |
+|-------|---------|
+| u0    | General error |
+| u1    | No tickets available |
+| u2    | Insufficient STX balance |
+| u3    | Ticket does not exist |
+| u4    | Sender is not the ticket owner |
+| u5    | Ticket ID lookup failed |
+| u6    | Event ID lookup failed |
+| u7    | Only the event organizer can issue a refund |
+| u8    | `total-tickets` must be greater than zero |
+| u9    | `price` must be greater than zero |
+| u10   | Event does not exist |
+| u12   | Ticket transfer failed (invalid ticket ID) |
+| u13   | Refund failed (invalid ticket ID) |
+
+## Deployment & Usage
+### Deployment
+This contract can be deployed on the Stacks blockchain using Clarity smart contract deployment tools.
+
+### Usage Instructions
+1. **Create an event** using `create-event`.
+2. **Buy tickets** using `buy-ticket` and sending the required STX.
+3. **Transfer tickets** to another user if needed.
+4. **Refund tickets** (only by the event organizer) when required.
+
+## Security Considerations
+- **Reentrancy Protection**: The contract ensures STX transfers occur before state changes to prevent reentrancy attacks.
+- **Access Control**: Only event organizers can issue refunds.
+- **Error Handling**: The contract returns descriptive error codes to handle failures gracefully.
+
+## Future Enhancements
+- Add time-based restrictions for event creation and ticket refunds.
+- Implement a secondary market for ticket resales.
+- Enable event organizers to set ticket refund policies.
+
+---
+This contract provides a robust and efficient way to manage event ticketing on the Stacks blockchain, ensuring security, transparency, and ease of use for both organizers and attendees.
+
